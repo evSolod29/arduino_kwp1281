@@ -59,7 +59,6 @@ bool KeyWordProtocol::readBlock(uint8_t data[], uint8_t arraySize){
   size = readByte();
   if(size < 3) return error();
   if(size-2 > arraySize) return error();
-  if(readByte() != counter - 1) return error();
   for(uint8_t i = 0; i <= size - 2; i++){
     data[i] = readByte();
   }
