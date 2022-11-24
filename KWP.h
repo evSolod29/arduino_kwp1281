@@ -1,0 +1,61 @@
+#ifndef KWP_h
+#define KWP_h
+
+#include <inttypes.h>
+#include <Arduino.h>
+
+#include <SoftwareSerial.h>
+
+#define ADR_Engine 0x01 // Engine
+#define ADR_Dashboard 0x17 // Instruments
+
+struct KWP_MODULE{
+  String name;
+  uint8_t addr;
+  int baudrate;
+  int *groups;
+  int ngroups;
+};
+
+struct SENSOR {
+  int type;
+  int a;
+  int b;
+  String desc;
+  String value;
+  String units;
+};
+
+class KWP {
+  public:
+    KWP(uint8_t receivePin, uint8_t transmitPin);
+    ~KWP();
+    bool connect(uint8_t addr, int baudrate);
+    void disconnect();
+    int readBlock(uint8_t addr, int group, int maxSensorsPerGroup, SENSOR resGroupSensor[]);
+    SENSOR getSensorData(byte k, byte a, byte b);
+    String getBlockDesc(uint8_t addr, int block);
+    bool isConnected();
+    uint8_t getCurrAddr();
+  private:
+    uint8_t _OBD_RX_PIN;
+    uint8_t _OBD_TX_PIN;
+
+    bool connected = false;
+    uint8_t blockCounter = 0;
+
+    SoftwareSerial *obd;
+
+    void obdWrite(uint8_t data);
+    uint8_t obdRead();
+    void send5baud(uint8_t data);
+    bool KWP5BaudInit(uint8_t addr);
+    bool KWPSendBlock(char *s, int size);
+    bool KWPReceiveBlock(char s[], int maxsize, int &size, bool init_delay = false);
+    bool KWPSendAckBlock();
+    bool readConnectBlocks();
+
+};
+
+#endif
+
