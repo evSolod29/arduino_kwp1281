@@ -18,6 +18,7 @@ class KeyWordProtocol{
     bool connect(uint8_t addr, int baudrate);
     void disconnect();
     bool isConnected();
+    bool error();
     bool sendBlock(uint8_t *data, uint8_t arraySize);
     bool readBlock(uint8_t data[], uint8_t arraySize);
     Sensor getSensorData(uint8_t group, uint8_t id);

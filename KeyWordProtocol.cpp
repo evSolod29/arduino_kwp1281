@@ -40,23 +40,30 @@ Sensor KeyWordProtocol::getSensorData(uint8_t group, uint8_t id){
   return sensor;
 }
 
-
+void KeyWordProtocol::disconnect(){
+  connected = false;
+  serial->end();
+}
 
 bool KeyWordProtocol::isConnected(){
   return connected;
 }
 
+bool KeyWordProtocol::error(){
+  disconnect();
+  return false;
+}
+
 bool KeyWordProtocol::readBlock(uint8_t data[], uint8_t arraySize){
   uint8_t size;
-  if(!isConnected()) return false;
   size = readByte();
-  if(size < 3) return false;
-  if(size-2 > arraySize) return false;
-  if(readByte() != counter - 1) return false;
+  if(size < 3) return error();
+  if(size-2 > arraySize) return error();
+  if(readByte() != counter - 1) return error();
   for(uint8_t i = 0; i <= size - 2; i++){
     data[i] = readByte();
   }
-  if(readByte() != 0x03) return false;
+  if(readByte() != 0x03) return error();
   counterChanged();
   return true;
 }
@@ -111,7 +118,9 @@ void KeyWordProtocol::sendInitPocket(uint8_t addr){
 
 bool KeyWordProtocol::writeByte(uint8_t data){
   write(data);
-  return read() == (data ^ 0xFF);
+  bool result = read() == (data ^ 0xFF);
+  if(result) return true;
+  return error();
 }
 
 uint8_t KeyWordProtocol::readByte(){
